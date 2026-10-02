@@ -18,7 +18,7 @@ recuperacion    REAL)""")
 
 
 datos = [
-    ("2026-09-01", "A", 5200, 0.85, 88.5)
+    ("2026-09-01", "A", 5200, 0.85, 88.5),
     ("2026-09-01", "B", 4900, 0.82, 87.1),
     ("2026-09-02", "A", 5350, 0.90, 89.2),
     ("2026-09-02", "B", 3100, 0.78, 84.0),
@@ -29,8 +29,18 @@ datos = [
     
     ]
 
-cursor.executemany("INSERT INTO produccion VALUES  (?, ?, ?, ?)", datos)
+cursor.executemany("INSERT INTO producction VALUES  (?, ?, ?, ?,? )", datos)
 conexion.commit()
 
 def consulta(sql):
     print(pd.read_sql(sql, conexion), "\n")
+
+#Dada la tabla realizar consultas 
+
+consulta("SELECT * FROM producction")
+consulta("SELECT fecha, turno, recuperacion FROM producction")
+consulta("SELECT * FROM producction WHERE turno = 'A'")
+consulta("SELECT * FROM producction WHERE recuperacion > 85")
+consulta("SELECT * FROM producction ORDER BY tonelaje DESC LIMIT 3")
+
+
