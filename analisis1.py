@@ -37,7 +37,7 @@ def consulta(sql):
 
 #Dada la tabla realizar consultas 
 
-consulta("SELECT * FROM producction")
+#consulta("SELECT * FROM producction")
 #consulta("SELECT fecha, turno, recuperacion FROM producction")
 #consulta("SELECT * FROM producction WHERE turno = 'A'")
 #consulta("SELECT * FROM producction WHERE recuperacion > 85")
@@ -46,10 +46,16 @@ consulta("SELECT * FROM producction")
 #ejercicios1
 
 
-consulta("SELECT fecha, tonelaje FROM producction WHERE turno = 'B'")
-consulta ("SELECT * FROM producction WHERE tonelaje > 5000")
-consulta("SELECT * FROM producction ORDER BY recuperacion DESC LIMIT 1")
-consulta("SELECT * FROM producction WHERE ley_cabeza >= 0.85 AND recuperacion > 88")
+#consulta("SELECT fecha, tonelaje FROM producction WHERE turno = 'B'")
+#consulta ("SELECT * FROM producction WHERE tonelaje > 5000")
+#consulta("SELECT * FROM producction ORDER BY recuperacion DESC LIMIT 1")
+#consulta("SELECT * FROM producction WHERE ley_cabeza >= 0.85 AND recuperacion > 88")
 
 
 
+consulta("""
+SELECT COUNT(*)          AS cantidad_turnos,
+       SUM(tonelaje)     AS tonelaje_total,
+       AVG(recuperacion) AS recuperacion_promedio
+FROM producction
+""")
