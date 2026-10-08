@@ -37,7 +37,7 @@ def consulta(sql):
 
 #Dada la tabla realizar consultas 
 
-#consulta("SELECT * FROM producction")
+consulta("SELECT * FROM producction")
 #consulta("SELECT fecha, turno, recuperacion FROM producction")
 #consulta("SELECT * FROM producction WHERE turno = 'A'")
 #consulta("SELECT * FROM producction WHERE recuperacion > 85")
@@ -58,4 +58,46 @@ SELECT COUNT(*)          AS cantidad_turnos,
        SUM(tonelaje)     AS tonelaje_total,
        AVG(recuperacion) AS recuperacion_promedio
 FROM producction
+
 """)
+
+consulta("""
+SELECT turno,
+       COUNT(*)                    AS cantidad,
+       SUM(tonelaje)               AS tonelaje_total,
+       ROUND(AVG(recuperacion), 1) AS recuperacion_promedio
+FROM producction
+GROUP BY turno
+""")
+
+consulta(""" 
+SELECT COUNT(*) AS cantidad,
+       MAX(tonelaje) AS tonelaje_maximo,
+       MIN(tonelaje) AS tonelaje_minimo
+FROM producction
+""")
+
+consulta(""" 
+SELECT fecha,
+        count(*) AS cantidad_turnos,
+        SUM(tonelaje) AS tonelaje_total
+FROM producction
+GROUP BY fecha          
+""")
+#Calcula la ley de cabeza promedio por turno, redondeada a 2 decimales.
+
+consulta("""
+SELECT turno, 
+        ROUND(AVG(ley_cabeza), 2) AS ley_cabeza_promedio
+FROM producction
+GROUP BY turno
+""")
+
+consulta("""
+SELECT fecha,
+        SUM(tonelaje) AS tonelaje_total
+FROM producction
+GROUP BY fecha
+ORDER BY tonelaje_total DESC, fecha
+""")
+
