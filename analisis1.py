@@ -1,4 +1,5 @@
 import sqlite3
+from tkinter import ROUND
 import pandas as pd
 
 conexion = sqlite3.connect("planta.db")
@@ -53,13 +54,13 @@ consulta("SELECT * FROM producction")
 
 
 
-consulta("""
-SELECT COUNT(*)          AS cantidad_turnos,
-       SUM(tonelaje)     AS tonelaje_total,
-       AVG(recuperacion) AS recuperacion_promedio
-FROM producction
+#consulta("""
+#SELECT COUNT(*)          AS cantidad_turnos,
+ #      SUM(tonelaje)     AS tonelaje_total,
+  #     AVG(recuperacion) AS recuperacion_promedio
+#FROM producction
 
-""")
+#""")
 
 consulta("""
 SELECT turno,
@@ -70,34 +71,77 @@ FROM producction
 GROUP BY turno
 """)
 
-consulta(""" 
-SELECT COUNT(*) AS cantidad,
-       MAX(tonelaje) AS tonelaje_maximo,
-       MIN(tonelaje) AS tonelaje_minimo
-FROM producction
-""")
 
-consulta(""" 
-SELECT fecha,
-        count(*) AS cantidad_turnos,
-        SUM(tonelaje) AS tonelaje_total
-FROM producction
-GROUP BY fecha          
-""")
+
+# consulta(""" 
+# SELECT COUNT(*) AS cantidad,
+#        MAX(tonelaje) AS tonelaje_maximo,
+#        MIN(tonelaje) AS tonelaje_minimo
+# FROM producction
+# """)
+
+# consulta(""" 
+# SELECT fecha,
+#         count(*) AS cantidad_turnos,
+#         SUM(tonelaje) AS tonelaje_total
+# FROM producction
+# GROUP BY fecha          
+# """)
 #Calcula la ley de cabeza promedio por turno, redondeada a 2 decimales.
 
-consulta("""
-SELECT turno, 
-        ROUND(AVG(ley_cabeza), 2) AS ley_cabeza_promedio
-FROM producction
-GROUP BY turno
-""")
+# consulta("""
+# SELECT turno, 
+#         ROUND(AVG(ley_cabeza), 2) AS ley_cabeza_promedio
+# FROM producction
+# GROUP BY turno
+# """)
+
+# consulta("""
+# SELECT fecha,
+#         SUM(tonelaje) AS tonelaje_total
+# FROM producction
+# GROUP BY fecha
+# ORDER BY tonelaje_total DESC, fecha
+# """)
+
 
 consulta("""
 SELECT fecha,
-        SUM(tonelaje) AS tonelaje_total
+       turno,
+       tonelaje,
+       ROUND(tonelaje * ley_cabeza / 100, 1)                      AS cu_alimentado,
+       ROUND(tonelaje * ley_cabeza / 100 * recuperacion / 100, 1) AS cu_fino,
+       ROUND(tonelaje * ley_cabeza /100 - tonelaje * ley_cabeza / 100 * recuperacion / 100, 1) AS cu_perdido
 FROM producction
-GROUP BY fecha
-ORDER BY tonelaje_total DESC, fecha
+ORDER BY cu_perdido DESC
 """)
 
+# consulta(""" 
+# SELECT fecha,
+#         turno,
+#         ROUND(tonelaje  * ley_cabeza /100 * recuperacion / 100, 1) AS cu_fino
+# FROM producction
+# GROUP BY turno
+
+# """)
+
+# consulta(""" 
+# SELECT  turno,
+#         ROUND(SUM(tonelaje), 1 ) AS tonelaje_total
+# FROM producction
+# GROUP BY turno
+# HAVING SUM(tonelaje)>19000
+#  """)
+
+consulta("""
+SELECT fecha,
+       turno,
+       tonelaje,
+       CASE
+           WHEN tonelaje >= 4500 THEN 'Bueno' 
+           ELSE 'Bajo' 
+       END AS estado,
+       COUNT( CASE WHEN tonelaje >= 4500 THEN 1 END ) AS cantidad_bueno,
+       COUNT( CASE WHEN tonelaje < 4500 THEN 1 END  ) AS cantidad_bajo
+FROM producction
+""")
