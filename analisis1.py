@@ -30,6 +30,8 @@ datos = [
     
     ]
 
+
+
 cursor.executemany("INSERT INTO producction VALUES  (?, ?, ?, ?,? )", datos)
 conexion.commit()
 
@@ -116,32 +118,46 @@ FROM producction
 ORDER BY cu_perdido DESC
 """)
 
-# consulta(""" 
-# SELECT fecha,
-#         turno,
-#         ROUND(tonelaje  * ley_cabeza /100 * recuperacion / 100, 1) AS cu_fino
-# FROM producction
-# GROUP BY turno
+consulta(""" 
+SELECT turno,
+        ROUND(SUM(tonelaje  * ley_cabeza /100 * recuperacion / 100), 1) AS cu_fino
+FROM producction
+GROUP BY turno
 
-# """)
+""")
 
-# consulta(""" 
-# SELECT  turno,
-#         ROUND(SUM(tonelaje), 1 ) AS tonelaje_total
-# FROM producction
-# GROUP BY turno
-# HAVING SUM(tonelaje)>19000
-#  """)
+consulta(""" 
+SELECT  turno,
+        ROUND(SUM(tonelaje), 1 ) AS tonelaje_total
+FROM producction
+GROUP BY turno
+HAVING SUM(tonelaje)>19000
+ """)
 
 consulta("""
-SELECT fecha,
-       turno,
-       tonelaje,
-       CASE
-           WHEN tonelaje >= 4500 THEN 'Bueno' 
-           ELSE 'Bajo' 
-       END AS estado,
-       COUNT( CASE WHEN tonelaje >= 4500 THEN 1 END ) AS cantidad_bueno,
-       COUNT( CASE WHEN tonelaje < 4500 THEN 1 END  ) AS cantidad_bajo
+SELECT CASE WHEN tonelaje >= 4500 THEN 'Normal' ELSE 'Bajo' END AS estado,
+       COUNT(*) AS cantidad
 FROM producction
+GROUP BY CASE WHEN tonelaje >= 4500 THEN 'Normal' ELSE 'Bajo' END
+
 """)
+
+
+
+consulta("""
+SELECT turno,
+ COUNT(*)          AS cantidad_turnos,
+      SUM(tonelaje)     AS tonelaje_total,
+      AVG(recuperacion) AS recuperacion_promedio
+FROM producction
+GROUP BY turno
+""")
+
+
+consulta ("""
+SELECT turno,
+       ROUND(SUM(tonelaje * ley_cabeza / 100 * recuperacion / 100) / SUM(tonelaje * ley_cabeza / 100) * 100, 2) as recuperacion_total
+FROM producction
+GROUP BY turno
+""")
+
