@@ -52,3 +52,28 @@ FROM producction AS p
 INNER JOIN detenciones AS d
     ON p.fecha = d.fecha AND p.turno = d.turno
 """)
+
+consulta(""" 
+SELECT p.fecha, p.turno, d.causa
+FROM producction AS p
+LEFT JOIN detenciones AS d
+    ON p.fecha = d.fecha AND p.turno = d.turno
+    WHERE d.causa IS NULL
+""")
+
+consulta("""
+SELECT p.fecha, p.turno, p.tonelaje, d.equipo, d.horas
+FROM detenciones AS d
+LEFT JOIN producction AS p
+    ON d.fecha = p.fecha AND d.turno = p.turno
+""")
+
+#Muestra las horas de detención totales por turno (fecha y turno), junto con su tonelaje.
+
+consulta(""" 
+SELECT p.fecha, p.turno, p.tonelaje, SUM(d.horas) AS horas_detencion
+FROM producction AS p
+LEFT JOIN detenciones AS d
+    ON p.fecha = d.fecha AND p.turno = d.turno
+    GROUP BY p.fecha, p.turno
+""")
