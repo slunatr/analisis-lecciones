@@ -54,7 +54,7 @@ INNER JOIN detenciones AS d
 """)
 
 consulta(""" 
-SELECT p.fecha, p.turno, d.causa
+SELECT p.fecha, p.turno
 FROM producction AS p
 LEFT JOIN detenciones AS d
     ON p.fecha = d.fecha AND p.turno = d.turno
@@ -68,7 +68,6 @@ LEFT JOIN producction AS p
     ON d.fecha = p.fecha AND d.turno = p.turno
 """)
 
-#Muestra las horas de detención totales por turno (fecha y turno), junto con su tonelaje.
 
 consulta(""" 
 SELECT p.fecha, p.turno, p.tonelaje, SUM(d.horas) AS horas_detencion
@@ -76,4 +75,78 @@ FROM producction AS p
 LEFT JOIN detenciones AS d
     ON p.fecha = d.fecha AND p.turno = d.turno
     GROUP BY p.fecha, p.turno
+""")
+
+
+consulta("""
+SELECT p.fecha, p.turno, p.tonelaje, d.horas_detencion
+FROM producction AS p
+LEFT JOIN (
+    SELECT fecha, turno, SUM(horas) AS horas_detencion
+    FROM detenciones
+    GROUP BY fecha, turno
+) AS d
+    ON p.fecha = d.fecha AND p.turno = d.turno
+""")
+
+
+
+
+consulta("""
+SELECT fecha, turno, tonelaje
+FROM producction
+WHERE tonelaje > (SELECT AVG(tonelaje) FROM producction)
+""")
+
+
+
+consulta("""
+SELECT fecha, turno, recuperacion
+FROM producction
+WHERE recuperacion < (SELECT AVG(recuperacion) FROM producction)
+""")
+
+consulta("""
+SELECT fecha, turno, tonelaje
+FROM producction
+WHERE tonelaje = (SELECT MAX(tonelaje) FROM producction)
+""")
+
+
+consulta("""
+WITH 
+Tabla AS (
+SELECT turno, ROUND(SUM(tonelaje * ley_cabeza / 100 * recuperacion / 100)
+    / SUM(tonelaje * ley_cabeza / 100)
+    * 100 , 2) AS rec_ponderada
+FROM producction
+GROUP BY turno
+
+)
+SELECT turno, rec_ponderada
+FROM Tabla 
+WHERE rec_ponderada = (SELECT MAX(rec_ponderada)
+FROM Tabla)
+""")    
+
+
+
+
+consulta("""
+WITH det AS (
+    SELECT fecha, turno, SUM(horas) AS horas
+    FROM detenciones
+    GROUP BY fecha, turno
+)
+SELECT CASE WHEN d.horas IS NULL THEN 'Sin detención'
+            ELSE 'Con detención'
+       END AS grupo,
+       COUNT(*)                  AS cantidad_turnos,
+       ROUND(AVG(p.tonelaje), 0) AS tonelaje_promedio
+FROM producction AS p
+LEFT JOIN det AS d
+    ON p.fecha = d.fecha AND p.turno = d.turno
+GROUP BY CASE WHEN d.horas IS NULL THEN 'Sin detención'
+              ELSE 'Con detención'
+         END
 """)
