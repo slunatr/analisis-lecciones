@@ -103,7 +103,11 @@ WHERE tonelaje > (SELECT AVG(tonelaje) FROM producction)
 consulta("""
 SELECT fecha, turno, recuperacion
 FROM producction
-WHERE recuperacion < (SELECT AVG(recuperacion) FROM producction)
+WHERE recuperacion < (SELECT ROUND(
+    SUM(tonelaje * ley_cabeza / 100 * recuperacion / 100)
+    / SUM(tonelaje * ley_cabeza / 100)
+    * 100
+, 2) AS rec_ponderada FROM producction)
 """)
 
 consulta("""
@@ -149,4 +153,58 @@ LEFT JOIN det AS d
 GROUP BY CASE WHEN d.horas IS NULL THEN 'Sin detención'
               ELSE 'Con detención'
          END
+""")
+
+
+consulta("""
+SELECT fecha, turno, recuperacion
+FROM producction
+WHERE recuperacion < (SELECT    SUM(tonelaje * ley_cabeza / 100 * recuperacion / 100)
+    / SUM(tonelaje * ley_cabeza / 100)
+    * 100
+ FROM producction)
+""")
+
+
+consulta("""
+SELECT fecha, turno, tonelaje, recuperacion, ley_cabeza 
+FROM producction
+WHERE ley_cabeza > 0.85
+ORDER BY recuperacion DESC
+""")
+
+
+consulta("""
+SELECT 
+       turno,
+       ROUND(tonelaje * ley_cabeza / 100 - tonelaje * ley_cabeza / 100 * recuperacion / 100, 1) AS cu_perdido
+FROM producction
+GROUP BY  turno
+ORDER BY cu_perdido DESC
+""")
+
+consulta("""
+SELECT
+    fecha, 
+    SUM(tonelaje * ley_cabeza / 100 * recuperacion / 100) as cu_fino
+FROM producction
+GROUP BY fecha
+HAVING SUM(tonelaje * ley_cabeza / 100 * recuperacion / 100) > 75
+
+""")
+
+consulta("""
+SELECT 
+    d.fecha, d.turno,d.equipo, d.causa, d.horas,
+    ROUND(p.tonelaje * p.ley_cabeza / 100 * p.recuperacion / 100, 1) as cu_fino
+FROM detenciones AS d
+INNER JOIN producction AS p
+    ON  p.turno = d.turno  AND p.fecha = d.fecha
+""")
+
+consulta("""
+SELECT turno,
+       ROUND(SUM(tonelaje * ley_cabeza) / SUM(tonelaje), 3) AS ley_ponderada
+FROM producction
+GROUP BY turno
 """)

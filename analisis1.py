@@ -160,4 +160,3 @@ SELECT turno,
 FROM producction
 GROUP BY turno
 """)
-
