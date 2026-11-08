@@ -25,6 +25,7 @@ WHERE t.fecha = '2026-09-01'  AND t.turno = 'A'
 """)
 
 consulta("""
-select * from consumos
+select * from turnos
+
 """)
 
